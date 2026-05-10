@@ -1,0 +1,35 @@
+### Frontend ###
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+### Backend ###
+venv/
+env/
+.venv/
+bin/
+include/
+lib/
+share/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.cache/
+
+# FastAPI / Backend specific
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+
+### Editor/IDE ###
+.vscode/
+*.swp
+*.swo
