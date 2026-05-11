@@ -1,6 +1,7 @@
 import { Clock, MapPin, UserSquare2, Users } from "lucide-react";
-import { useMemo, useState } from "react";
-import { DAYS, MOCK_SCHEDULE, ScheduleItem, TIME_SLOTS } from "../data/mock";
+import { useEffect, useState } from "react";
+import { DAYS, TIME_SLOTS } from "../data/constants";
+import { fetchSchedule, ScheduleItem } from "../data/api";
 
 interface ScheduleProps {
   course: string;
@@ -10,31 +11,38 @@ interface ScheduleProps {
 
 export default function Schedule({ course, group, subgroup }: ScheduleProps) {
   const [selectedDay, setSelectedDay] = useState(() => {
-    // Default to current day, or Monday if Sunday
     const today = new Date().getDay();
-    return today === 0 ? 0 : today - 1; // 0 for Monday, 5 for Saturday
+    return today === 0 ? 0 : today - 1;
   });
 
-  const scheduleForGroup = useMemo(() => {
-    return MOCK_SCHEDULE.filter((item) => {
-      // Must match course and have the group in its groups array
-      if (item.course !== course) return false;
-      if (!item.groups.includes(group)) return false;
-      
-      // If item has a subgroup, check if it matches the user's subgroup (or if user is 'Общая', maybe show all? Usually students only attend 'Общая' + their '1 подгруппа')
-      if (item.subgroup && subgroup && subgroup !== "Общая") {
-        if (item.subgroup !== subgroup) return false;
+  const [scheduleData, setScheduleData] = useState<ScheduleItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchSchedule(course, group, subgroup);
+        if (!cancelled) setScheduleData(data);
+      } catch (err) {
+        if (!cancelled)
+          setError("Не удалось загрузить расписание. Попробуйте позже.");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      return true;
-    }).sort((a, b) => {
-      if (a.day !== b.day) return a.day - b.day;
-      return a.timeSlot - b.timeSlot;
-    });
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [course, group, subgroup]);
 
-  const todaysSchedule = useMemo(() => {
-    return scheduleForGroup.filter((item) => item.day === selectedDay);
-  }, [scheduleForGroup, selectedDay]);
+  const todaysSchedule = scheduleData.filter(
+    (item) => item.day === selectedDay,
+  );
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -49,6 +57,22 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto pb-24 text-center py-16 text-slate-500">
+        Загрузка расписания...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto pb-24 text-center py-16 text-red-500">
+        {error}
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto pb-24 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header className="mb-6">
@@ -56,11 +80,12 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
           Расписание
         </h1>
         <p className="text-slate-500 mt-1 flex items-center gap-2">
-          {course} • {group} {subgroup && subgroup !== "Общая" && `• ${subgroup}`}
+          {course} • {group}{" "}
+          {subgroup && subgroup !== "Общая" && `• ${subgroup}`}
         </p>
       </header>
 
-      {/* Day Selector - Horizontal Scroll on Mobile */}
+      {/* Day Selector */}
       <div className="-mx-4 px-4 sm:mx-0 sm:px-0 mb-6 overflow-x-auto pb-2 scrollbar-none">
         <div className="flex gap-2 w-max sm:w-full">
           {DAYS.map((day, idx) => (
@@ -90,12 +115,12 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
               className="bg-white border text-left border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
             >
               <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200 group-hover:bg-blue-400 transition-colors" />
-              
+
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 {/* Time Badge */}
                 <div className="min-w-[120px] shrink-0">
                   <div className="text-lg font-bold text-slate-900 tracking-tight">
-                    {TIME_SLOTS[item.timeSlot].split(' - ')[0]}
+                    {TIME_SLOTS[item.timeSlot].split(" - ")[0]}
                   </div>
                   <div className="text-sm text-slate-500 flex items-center gap-1.5 mt-0.5">
                     <Clock className="w-3.5 h-3.5" />
@@ -111,7 +136,7 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span
                       className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${getTypeColor(
-                        item.type
+                        item.type,
                       )}`}
                     >
                       {item.type}
@@ -128,11 +153,11 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
                       </span>
                     )}
                   </div>
-                  
+
                   <h3 className="text-lg font-semibold text-slate-900 leading-tight mb-3">
                     {item.subject}
                   </h3>
-                  
+
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                       <UserSquare2 className="w-4 h-4 text-slate-400" />
@@ -149,7 +174,9 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
           ))
         ) : (
           <div className="text-center py-16 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
-            <h3 className="text-lg font-medium text-slate-600 mb-2">Окон нет! Пар тоже.</h3>
+            <h3 className="text-lg font-medium text-slate-600 mb-2">
+              Окон нет! Пар тоже.
+            </h3>
             <p className="text-slate-500">В этот день занятий не найдено.</p>
           </div>
         )}

@@ -1,20 +1,17 @@
 import { MapPin, Search } from "lucide-react";
-import { useState, useMemo } from "react";
-import { ROOMS, MOCK_SCHEDULE, DAYS, TIME_SLOTS } from "../data/mock";
+import { useState, useMemo, useEffect } from "react";
+import { ROOMS, DAYS, TIME_SLOTS } from "../data/constants";
+import { fetchEmptyRooms } from "../data/api";
 
 export default function EmptyRooms() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(0);
+  const [emptyRooms, setEmptyRooms] = useState<string[]>([]);
 
-  // Find busy rooms for the selected time and day
-  const emptyRooms = useMemo(() => {
-    const busyRooms = new Set(
-      MOCK_SCHEDULE.filter(
-        (item) => item.day === selectedDay && item.timeSlot === selectedTimeSlot
-      ).map((item) => item.room)
-    );
-
-    return ROOMS.filter((room) => !busyRooms.has(room));
+  useEffect(() => {
+    fetchEmptyRooms(selectedDay, selectedTimeSlot)
+      .then(setEmptyRooms)
+      .catch(() => setEmptyRooms([]));
   }, [selectedDay, selectedTimeSlot]);
 
   return (

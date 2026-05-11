@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { COURSES, GROUPS, SUBGROUPS } from "../data/mock";
+import { COURSES, GROUPS, SUBGROUPS } from "../data/constants";
 
 interface OnboardingProps {
-  onComplete: (data: { course: string; group: string; subgroup: string }) => void;
+  onComplete: (data: {
+    course: string;
+    group: string;
+    subgroup: string;
+  }) => void;
   initialData?: { course: string; group: string; subgroup: string } | null;
   isSettingsMode?: boolean;
 }
 
-export default function Onboarding({ onComplete, initialData, isSettingsMode = false }: OnboardingProps) {
+export default function Onboarding({
+  onComplete,
+  initialData,
+  isSettingsMode = false,
+}: OnboardingProps) {
   const [course, setCourse] = useState(initialData?.course || "");
   const [group, setGroup] = useState(initialData?.group || "");
   const [subgroup, setSubgroup] = useState(initialData?.subgroup || "");
@@ -21,29 +29,37 @@ export default function Onboarding({ onComplete, initialData, isSettingsMode = f
   const isFormValid = course !== "" && group !== "" && subgroup !== "";
 
   return (
-    <div className={`max-w-md mx-auto animate-in fade-in zoom-in-95 duration-300 ${!isSettingsMode ? 'pt-20' : ''}`}>
+    <div
+      className={`max-w-md mx-auto animate-in fade-in zoom-in-95 duration-300 ${!isSettingsMode ? "pt-20" : ""}`}
+    >
       <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
         {!isSettingsMode && (
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-blue-600/20 text-white font-bold text-2xl">
               УР
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Добро пожаловать</h1>
-            <p className="text-slate-500 mt-2">Давайте настроим ваше расписание</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Добро пожаловать
+            </h1>
+            <p className="text-slate-500 mt-2">
+              Давайте настроим ваше расписание
+            </p>
           </div>
         )}
 
         <div className="space-y-6">
           {/* Course */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">1. Выберите курс</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              1. Выберите курс
+            </label>
             <div className="grid grid-cols-2 gap-2">
               {COURSES.map((c) => (
                 <button
                   key={c}
                   onClick={() => {
                     setCourse(c);
-                    setGroup(""); // Reset group when course changes
+                    setGroup("");
                   }}
                   className={`py-3 px-4 rounded-xl text-sm font-medium transition-all ${
                     course === c
@@ -58,8 +74,12 @@ export default function Onboarding({ onComplete, initialData, isSettingsMode = f
           </div>
 
           {/* Group */}
-          <div className={`transition-opacity duration-300 ${!course ? "opacity-50 pointer-events-none" : ""}`}>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">2. Укажите группу</label>
+          <div
+            className={`transition-opacity duration-300 ${!course ? "opacity-50 pointer-events-none" : ""}`}
+          >
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              2. Укажите группу
+            </label>
             <select
               value={group}
               onChange={(e) => setGroup(e.target.value)}
@@ -79,8 +99,12 @@ export default function Onboarding({ onComplete, initialData, isSettingsMode = f
           </div>
 
           {/* Subgroup */}
-          <div className={`transition-opacity duration-300 ${!group ? "opacity-50 pointer-events-none" : ""}`}>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">3. Ваша подгруппа</label>
+          <div
+            className={`transition-opacity duration-300 ${!group ? "opacity-50 pointer-events-none" : ""}`}
+          >
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              3. Ваша подгруппа
+            </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {SUBGROUPS.map((sg) => (
                 <button
