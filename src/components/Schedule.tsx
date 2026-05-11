@@ -1,15 +1,22 @@
-import { Clock, MapPin, UserSquare2, Users } from "lucide-react";
+import { Clock, MapPin, UserSquare2, Users, PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DAYS, TIME_SLOTS } from "../data/constants";
 import { fetchSchedule, ScheduleItem } from "../data/api";
+import ScheduleModal from "./ScheduleModal";
 
 interface ScheduleProps {
   course: string;
   group: string;
   subgroup?: string;
+  isAdmin: boolean;
 }
 
-export default function Schedule({ course, group, subgroup }: ScheduleProps) {
+export default function Schedule({
+  course,
+  group,
+  subgroup,
+  isAdmin,
+}: ScheduleProps) {
   const [selectedDay, setSelectedDay] = useState(() => {
     const today = new Date().getDay();
     return today === 0 ? 0 : today - 1;
@@ -19,25 +26,23 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
+  const loadSchedule = () => {
+    setLoading(true);
+    setError(null);
+    fetchSchedule(course, group, subgroup)
+      .then(setScheduleData)
+      .catch(() =>
+        setError("Не удалось загрузить расписание. Попробуйте позже."),
+      )
+      .finally(() => setLoading(false));
+  };
+
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchSchedule(course, group, subgroup);
-        if (!cancelled) setScheduleData(data);
-      } catch (err) {
-        if (!cancelled)
-          setError("Не удалось загрузить расписание. Попробуйте позже.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
+    loadSchedule();
   }, [course, group, subgroup]);
 
   const todaysSchedule = scheduleData.filter(
@@ -55,6 +60,20 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
       default:
         return "bg-slate-50 text-slate-700 border-slate-200";
     }
+  };
+
+  const handleAdd = () => {
+    setEditId(null);
+    setShowModal(true);
+  };
+
+  const handleEdit = (id: number) => {
+    setEditId(id);
+    setShowModal(true);
+  };
+
+  const handleSaved = () => {
+    loadSchedule();
   };
 
   if (loading) {
@@ -97,8 +116,7 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
                   selectedDay === idx
                     ? "bg-slate-900 text-white shadow-md"
                     : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
-                }
-              `}
+                }`}
             >
               {day}
             </button>
@@ -106,13 +124,29 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
         </div>
       </div>
 
+      {/* Thêm nút Thêm cho admin */}
+      {isAdmin && (
+        <div className="mb-4">
+          <button
+            onClick={handleAdd}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Добавить занятие
+          </button>
+        </div>
+      )}
+
       {/* Schedule List */}
       <div className="space-y-4">
         {todaysSchedule.length > 0 ? (
           todaysSchedule.map((item) => (
             <div
               key={item.id}
-              className="bg-white border text-left border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
+              onClick={() => isAdmin && handleEdit(Number(item.id))}
+              className={`bg-white border text-left border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group ${
+                isAdmin ? "cursor-pointer hover:border-blue-300" : ""
+              }`}
             >
               <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200 group-hover:bg-blue-400 transition-colors" />
 
@@ -135,9 +169,7 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${getTypeColor(
-                        item.type,
-                      )}`}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${getTypeColor(item.type)}`}
                     >
                       {item.type}
                     </span>
@@ -181,6 +213,14 @@ export default function Schedule({ course, group, subgroup }: ScheduleProps) {
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      <ScheduleModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSaved={handleSaved}
+        editScheduleId={editId}
+      />
     </div>
   );
 }

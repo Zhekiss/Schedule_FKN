@@ -148,7 +148,7 @@ export default function App() {
             course={userData.course}
             group={userData.group}
             subgroup={userData.subgroup}
-            // Sau này bạn có thể truyền thêm prop isAdmin={isAdmin} vào đây để hiện nút Edit
+            isAdmin={isAdmin}
           />
         )}
         {view === "rooms" && <EmptyRooms />}
