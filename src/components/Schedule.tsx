@@ -124,7 +124,7 @@ export default function Schedule({
         </div>
       </div>
 
-      {/* Thêm nút Thêm cho admin */}
+      {/* Add button fro admin */}
       {isAdmin && (
         <div className="mb-4">
           <button

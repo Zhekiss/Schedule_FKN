@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Tạo bảng nếu chưa có
+# Create table if there are none
 Base.metadata.create_all(bind=engine)
 
 def get_db():
@@ -68,7 +68,7 @@ def check_collision(
     group_ids: List[int],
     exclude_schedule_id: Optional[int] = None,
 ):
-    # Phòng
+    # rooms
     room_conflict = db.query(Schedule).filter(
         Schedule.day == day,
         Schedule.time_slot == time_slot,
@@ -79,7 +79,7 @@ def check_collision(
     if room_conflict.first():
         return "Аудитория уже занята в это время"
 
-    # Giáo viên
+    # teachers
     teacher_conflict = db.query(Schedule).filter(
         Schedule.day == day,
         Schedule.time_slot == time_slot,
@@ -91,7 +91,7 @@ def check_collision(
         teacher_name = db.query(Teacher).get(teacher_id).name
         return f"Преподаватель {teacher_name} уже занят в это время"
 
-    # Nhóm
+    # groups
     for gid in group_ids:
         group_conflict = db.query(Schedule).filter(
             Schedule.day == day,
@@ -107,7 +107,7 @@ def check_collision(
     return None
 
 
-# ------------------ DANH MỤC ------------------
+# ------------------ DANH MỤC - categories------------------
 @app.get("/api/admin/courses")
 def get_courses(db: Session = Depends(get_db)):
     return [{"id": c.id, "name": c.name} for c in db.query(Course).all()]
@@ -127,7 +127,7 @@ def get_rooms(db: Session = Depends(get_db)):
 def get_teachers(db: Session = Depends(get_db)):
     return [{"id": t.id, "name": t.name} for t in db.query(Teacher).all()]
 
-# ------------------ LỊCH HỌC ------------------
+# ------------------ Schedule - lịch học ------------------
 @app.get("/api/schedule", response_model=List[ScheduleOut])
 def get_schedule(
     course: str = Query(...),
@@ -160,6 +160,7 @@ def get_schedule(
     schedule_items = query.order_by(Schedule.day, Schedule.time_slot).all()
     return [schedule_to_out(s) for s in schedule_items]
 
+# ------------------ Empty room - phòng trống ------------------
 @app.get("/api/rooms/empty")
 def get_empty_rooms(day: int, timeSlot: int, db: Session = Depends(get_db)):
     all_rooms = db.query(Room).all()
@@ -172,6 +173,7 @@ def get_empty_rooms(day: int, timeSlot: int, db: Session = Depends(get_db)):
     empty_rooms = [room.name for room in all_rooms if room.id not in occupied_ids]
     return empty_rooms
 
+# ------------------ while editing in modal ------------------
 @app.get("/api/schedule/{schedule_id}", response_model=ScheduleDetailOut)
 def get_schedule_item(schedule_id: int, db: Session = Depends(get_db)):
     s = db.query(Schedule).filter(Schedule.id == schedule_id).first()

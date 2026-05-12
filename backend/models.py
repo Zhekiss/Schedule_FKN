@@ -26,7 +26,6 @@ class Room(Base):
     __tablename__ = "rooms"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
-    # Có thể thêm capacity sau nếu cần
 
 class Teacher(Base):
     __tablename__ = "teachers"
@@ -36,8 +35,8 @@ class Teacher(Base):
 class Schedule(Base):
     __tablename__ = "schedule"
     id = Column(Integer, primary_key=True, index=True)
-    day = Column(Integer, nullable=False)            # 0-5 (Thứ 2 - Thứ 7)
-    time_slot = Column(Integer, nullable=False)      # 0-7 (cặp tiết)
+    day = Column(Integer, nullable=False)            # 0-5 ( Mon - Saturday)
+    time_slot = Column(Integer, nullable=False)      # 0-7 (пары)
     subject = Column(String, nullable=False)
     type = Column(String, nullable=False)            # "Лекция", "Практика", "Лабораторная"
     subgroup = Column(String, nullable=True)         # "1 подгруппа", "2 подгруппа", None (Общая)

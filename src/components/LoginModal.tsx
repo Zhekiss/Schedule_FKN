@@ -21,13 +21,13 @@ export default function LoginModal({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Tạm thời hardcode logic login (Sẽ thay bằng API gọi xuống FastAPI sau)
+    // just now, hardcode login... for testing
     if (username === "admin" && password === "admin123") {
       setError("");
       onLoginSuccess();
       onClose();
     } else {
-      setError("Неверный логин или пароль"); // Sai tài khoản hoặc mật khẩu
+      setError("Неверный логин или пароль");
     }
   };
 

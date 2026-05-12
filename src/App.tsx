@@ -18,7 +18,7 @@ export default function App() {
   const [view, setView] = useState<ViewState>("schedule");
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // State quản lý Admin Auth
+  // state for Admin Auth
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -31,7 +31,7 @@ export default function App() {
         console.error("Failed to parse settings");
       }
     }
-    // Tạm thời lưu trạng thái admin vào localStorage cho tiện test
+    //just now, state in the localstorage for easier testing
     if (localStorage.getItem("isAdmin") === "true") {
       setIsAdmin(true);
     }
@@ -104,7 +104,7 @@ export default function App() {
           </button>
         </div>
 
-        {/* Nút Admin và Settings */}
+        {/* buttons Admin and Settings */}
         <div className="flex items-center gap-2">
           {isAdmin ? (
             <button
@@ -166,7 +166,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Thêm Modal vào cuối cùng */}
+      {/* Modal at the end*/}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
