@@ -8,7 +8,7 @@ def init_db():
     try:
         # Kiểm tra xem đã có dữ liệu chưa
         if db.query(Course).count() > 0:
-            print("Database đã có dữ liệu, bỏ qua seed.")
+            print("Database already has data, skipping seed.")
             return
 
         # Thêm tất cả khóa học
@@ -102,7 +102,7 @@ def init_db():
 
         db.add_all([s1, s2])
         db.commit()
-        print("Đã seed dữ liệu mẫu đầy đủ vào database.")
+        print("Data has been seeded into the database.")
     finally:
         db.close()
 

@@ -271,4 +271,4 @@ def delete_schedule(schedule_id: int, db: Session = Depends(get_db)):
 
 @app.get("/")
 def read_root():
-    return {"message": "Backend FastAPI đang hoạt động ngon lành!"}
+    return {"message": "Backend FastAPI is working good!"}

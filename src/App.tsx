@@ -166,9 +166,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation - Cập nhật thêm icon nếu muốn, nhưng để giữ nguyên UI 3 nút cân đối thì hiện tại thế này là ổn */}
-      {/* ... (Giữ nguyên phần Mobile Bottom Navigation của bạn) ... */}
-
       {/* Thêm Modal vào cuối cùng */}
       <LoginModal
         isOpen={showLoginModal}
