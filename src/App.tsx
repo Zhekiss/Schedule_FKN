@@ -71,11 +71,11 @@ export default function App() {
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => setView("schedule")}
         >
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-            УР
+          <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+            ФКН
           </div>
           <span className="font-semibold text-slate-900 tracking-tight hidden sm:block">
-            Расписание Факультета
+            Расписание
           </span>
         </div>
 
@@ -112,7 +112,6 @@ export default function App() {
               className="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-sm font-medium hover:bg-emerald-100 transition-colors flex items-center gap-2"
               title="Выйти"
             >
-              <Shield className="w-4 h-4" />
               <span className="hidden sm:block">Admin Active</span>
             </button>
           ) : (
